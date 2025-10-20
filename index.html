@@ -1,108 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phaze UI</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Phaze Menu</title>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
-    background: radial-gradient(circle at center, #0a0f1a 0%, #05070d 100%);
-    user-select: none;
+  html,body {
+    margin:0;padding:0;height:100%;overflow:hidden;
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    background:transparent;
+    color:#eaf1ff;
+    user-select:none;
   }
 
-  /* center container */
+  /* main container anchored right */
   #overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: auto;
+    position:fixed;
+    right:40px;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:1000;
+    pointer-events:auto;
+    animation:slideIn .35s ease-out;
   }
 
-  /* main menu box */
+  @keyframes slideIn {
+    from{opacity:0;transform:translate(150px,-50%);}
+    to{opacity:1;transform:translate(0,-50%);}
+  }
+
   .menu {
-    width: 420px;
-    background: rgba(10, 13, 25, 0.75);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-    overflow: hidden;
-    animation: fadeIn 0.3s ease-out;
+    width:360px;
+    background:rgba(12,18,30,0.85);
+    backdrop-filter:blur(18px);
+    border-radius:16px;
+    box-shadow:0 0 25px rgba(37,99,235,0.25);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
   }
 
-  /* header bar */
   .menu-header {
-    background: linear-gradient(90deg, #2563eb, #1e40af);
-    padding: 18px;
-    font-size: 28px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 1px;
-    text-align: left;
-    text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    background:linear-gradient(90deg,#2563eb,#1d4ed8);
+    padding:16px;
+    font-size:26px;
+    font-weight:700;
+    color:#fff;
+    text-shadow:0 0 8px rgba(0,0,0,0.4);
+    letter-spacing:1px;
   }
 
-  /* items area */
   .menu-list {
-    padding: 10px;
-    max-height: 400px;
+    padding:10px 14px;
+    flex:1;
   }
 
   .menu-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 10px;
-    padding: 12px 18px;
-    margin: 6px 0;
-    color: #dce2f0;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
+    background:rgba(255,255,255,0.04);
+    border-radius:10px;
+    padding:12px 16px;
+    margin:6px 0;
+    font-size:17px;
+    color:#dbe7ff;
+    cursor:pointer;
+    transition:all .15s ease-in-out;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
   }
 
   .menu-item:hover {
-    background: rgba(255, 255, 255, 0.07);
-    transform: translateX(3px);
+    background:rgba(255,255,255,0.07);
+    transform:translateX(-4px);
   }
 
   .menu-item.selected {
-    background: linear-gradient(90deg, rgba(37,99,235,0.95), rgba(59,130,246,0.85));
-    color: #fff;
-    box-shadow: 0 0 15px rgba(59,130,246,0.3);
-    transform: translateX(6px);
+    background:linear-gradient(270deg,rgba(37,99,235,0.95),rgba(59,130,246,0.85));
+    color:#fff;
+    transform:translateX(-8px);
+    box-shadow:-4px 0 15px rgba(37,99,235,0.3);
   }
 
-  /* small right arrow indicator */
-  .menu-item::after {
-    content: "›";
-    font-weight: bold;
-    color: rgba(255,255,255,0.2);
+  .menu-item::before {
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:transparent;
+    margin-right:10px;
   }
-  .menu-item.selected::after {
-    color: #fff;
-  }
+  .menu-item.selected::before { background:#fff; }
 
   .menu-footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 18px;
-    font-size: 13px;
-    color: rgba(255,255,255,0.65);
-    border-top: 1px solid rgba(255,255,255,0.08);
+    display:flex;
+    justify-content:space-between;
+    padding:8px 14px;
+    font-size:12px;
+    color:rgba(255,255,255,0.6);
+    border-top:1px solid rgba(255,255,255,0.08);
   }
 
-  @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(20px);}
-    to {opacity: 1; transform: translateY(0);}
+  /* notifications bottom right */
+  #notifications {
+    position:fixed;
+    bottom:30px;
+    right:40px;
+    width:280px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    z-index:1100;
   }
+  .notif {
+    background:rgba(18,25,40,0.92);
+    backdrop-filter:blur(12px);
+    border-left:4px solid #2563eb;
+    padding:12px 14px;
+    border-radius:10px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.5);
+    color:#eaf1ff;
+    font-size:15px;
+    opacity:0;
+    transform:translateX(40px);
+    animation:notifIn .3s forwards, notifOut .3s 4.7s forwards;
+  }
+  @keyframes notifIn {
+    to {opacity:1;transform:translateX(0);}
+  }
+  @keyframes notifOut {
+    to {opacity:0;transform:translateX(40px);}
+  }
+
 </style>
 </head>
 <body>
@@ -117,49 +145,74 @@
         <div class="menu-item" data-action="combat">⚔️ Combat</div>
         <div class="menu-item" data-action="vehicle">🚗 Vehicle</div>
         <div class="menu-item" data-action="visual">🎨 Visual</div>
-        <div class="menu-item" data-action="misc">🧩 Miscellaneous</div>
+        <div class="menu-item" data-action="misc">🧩 Misc</div>
         <div class="menu-item" data-action="settings">⚙️ Settings</div>
       </div>
       <div class="menu-footer">
-        <div>Phaze UI Demo</div>
-        <div>v1.0</div>
+        <div>Phaze UI</div><div>v1.2</div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- notification container -->
+<div id="notifications"></div>
+
 <script>
 (function(){
-  const container=document.getElementById("injected-container");
-  const overlay=document.getElementById("overlay");
-  let items=[]; let selectedIndex=0;
-  function collect(){items=[...container.querySelectorAll(".menu-item")];if(!items.length)return;items.forEach(i=>i.classList.remove("selected"));items[0].classList.add("selected");selectedIndex=0;}
-  function update(){items.forEach((i,idx)=>i.classList.toggle("selected",idx===selectedIndex));}
+  const container=document.getElementById('injected-container');
+  const overlay=document.getElementById('overlay');
+  const notifBox=document.getElementById('notifications');
+  let items=[];let idx=0;
+
+  function collect(){
+    items=[...container.querySelectorAll('.menu-item')];
+    if(!items.length)return;
+    items.forEach(i=>i.classList.remove('selected'));
+    idx=0;items[idx].classList.add('selected');
+  }
+  function update(){items.forEach((i,n)=>i.classList.toggle('selected',n===idx));}
+
   function action(a){
-    const res=(typeof GetParentResourceName==="function")?GetParentResourceName():null;
-    if(res){fetch(`https://${res}/menuAction`,{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({action:a})});}
-    else alert("Action: "+a);
+    showNotif('Selected: '+a);
+    const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
+    if(res){
+      fetch(`https://${res}/menuAction`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:a})});
+    }
   }
+
   function close(){
-    const res=(typeof GetParentResourceName==="function")?GetParentResourceName():null;
-    if(res){fetch(`https://${res}/close`,{method:"POST",headers:{'Content-Type':'application/json'},body:"{}"});}
-    else overlay.style.display="none";
+    const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
+    if(res){
+      fetch(`https://${res}/close`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    }else overlay.style.display='none';
   }
+
   function inject(html){container.innerHTML=html;collect();}
-  window.addEventListener("keydown",e=>{
-    if(e.key==="ArrowDown"){selectedIndex=(selectedIndex+1)%items.length;update();e.preventDefault();}
-    else if(e.key==="ArrowUp"){selectedIndex=(selectedIndex-1+items.length)%items.length;update();e.preventDefault();}
-    else if(e.key==="Enter"){const el=items[selectedIndex];if(el){action(el.getAttribute("data-action")||el.textContent.trim());}}
-    else if(e.key==="Backspace"||e.key==="Escape"){close();}
+  function showNotif(msg){
+    const n=document.createElement('div');
+    n.className='notif';
+    n.textContent=msg;
+    notifBox.appendChild(n);
+    setTimeout(()=>{notifBox.removeChild(n);},5000);
+  }
+
+  window.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'){idx=(idx+1)%items.length;update();e.preventDefault();}
+    else if(e.key==='ArrowUp'){idx=(idx-1+items.length)%items.length;update();e.preventDefault();}
+    else if(e.key==='Enter'){const el=items[idx];if(el)action(el.dataset.action||el.textContent.trim());}
+    else if(e.key==='Backspace'||e.key==='Escape'){close();}
   });
-  container.addEventListener("click",ev=>{
-    const el=ev.target.closest(".menu-item");if(!el)return;
-    action(el.getAttribute("data-action")||el.textContent.trim());
+  container.addEventListener('click',ev=>{
+    const el=ev.target.closest('.menu-item');
+    if(!el)return;
+    action(el.dataset.action||el.textContent.trim());
   });
-  window.addEventListener("message",ev=>{
+  window.addEventListener('message',ev=>{
     const d=ev.data;if(!d)return;
-    if(d.action==="open"&&d.html)inject(d.html);
-    else if(d.action==="close")close();
+    if(d.action==='open'&&d.html)inject(d.html);
+    else if(d.action==='notify'&&d.text)showNotif(d.text);
+    else if(d.action==='close')close();
   });
   collect();
 })();
