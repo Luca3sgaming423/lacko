@@ -90,7 +90,7 @@ html,body{margin:0;padding:0;height:100%;overflow:hidden;font-family:"Segoe UI",
       if(it.dataset.type==='toggle'){
         const tog=it.querySelector('.toggle');const on=tog.classList.toggle('active');
         const opt=it.textContent.trim();
-        if(opt.startsWith('Noclip')){ // special handling
+        if(opt.startsWith('Noclip')){
           toast(on?'Noclip Enabled':'Noclip Disabled');
           const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
           if(res){fetch(`https://${res}/noclipToggle`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:on})});}
@@ -107,6 +107,17 @@ html,body{margin:0;padding:0;height:100%;overflow:hidden;font-family:"Segoe UI",
         if(res){fetch(`https://${res}/close`,{method:'POST',body:'{}'});}
         else document.getElementById('overlay').style.display='none';
       }
+    }
+  });
+
+  // receive messages from DUI (Lua SendDuiMessage)
+  window.addEventListener('message', e => {
+    const d = e.data;
+    if (!d || !d.action) return;
+    if (d.action === 'keydown' && d.key) {
+      // simulate real key press so normal logic above runs
+      const evt = new KeyboardEvent('keydown', { key: d.key });
+      document.dispatchEvent(evt);
     }
   });
 })();
