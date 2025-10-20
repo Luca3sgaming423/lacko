@@ -12,7 +12,7 @@
     color:#eaf1ff;
   }
 
-  /* anchored to right center */
+  /* anchored right center */
   #overlay {
     position:fixed;
     right:40px;
@@ -22,12 +22,11 @@
     z-index:1000;
     animation:fadeIn .3s ease-out;
   }
+  @keyframes fadeIn {from{opacity:0;transform:translate(60px,-50%);}to{opacity:1;transform:translate(0,-50%);} }
 
-  @keyframes fadeIn { from{opacity:0;transform:translate(60px,-50%);} to{opacity:1;transform:translate(0,-50%);} }
-
-  /* glass panel */
+  /* main menu container */
   .menu {
-    width:340px;
+    width:360px;
     background:rgba(15,23,42,0.55);
     backdrop-filter:blur(18px);
     border-radius:14px;
@@ -40,18 +39,47 @@
 
   .menu-header {
     background:linear-gradient(90deg,#3b82f6,#1e3a8a);
-    padding:14px 16px;
+    padding:14px 0;
     font-size:22px;
     font-weight:600;
     color:#fff;
     letter-spacing:.5px;
+    text-align:center;
     text-shadow:0 0 8px rgba(0,0,0,0.4);
   }
 
-  .menu-list {
-    flex:1;
-    padding:10px 14px;
+  /* tab bar */
+  .tab-bar {
+    display:flex;
+    justify-content:space-around;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.05);
   }
+  .tab {
+    flex:1;
+    text-align:center;
+    padding:10px 0;
+    cursor:pointer;
+    font-weight:500;
+    font-size:15px;
+    color:rgba(255,255,255,0.8);
+    transition:all .2s ease;
+  }
+  .tab:hover {background:rgba(255,255,255,0.08);}
+  .tab.active {
+    background:linear-gradient(90deg,#3b82f6,#2563eb);
+    color:#fff;
+  }
+
+  .menu-content {
+    flex:1;
+    padding:12px 16px;
+  }
+
+  .menu-section {
+    display:none;
+  }
+  .menu-section.active {display:block;}
 
   .menu-item {
     background:rgba(255,255,255,0.07);
@@ -65,16 +93,9 @@
     cursor:pointer;
     transition:all .15s ease-in-out;
   }
-
   .menu-item:hover {
     background:rgba(255,255,255,0.12);
     transform:translateX(-4px);
-  }
-
-  .menu-item.selected {
-    background:rgba(59,130,246,0.25);
-    color:#fff;
-    box-shadow:-3px 0 10px rgba(59,130,246,0.3);
   }
 
   /* toggle switch */
@@ -143,27 +164,50 @@
 <div id="overlay">
   <div class="menu" id="menuBox">
     <div class="menu-header">Control Panel</div>
-    <div class="menu-list">
-      <div class="menu-item" data-action="godmode">God Mode
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    <div class="tab-bar">
+      <div class="tab active" data-tab="self">Self</div>
+      <div class="tab" data-tab="spawner">Spawner</div>
+      <div class="tab" data-tab="online">Online</div>
+      <div class="tab" data-tab="misc">Misc</div>
+    </div>
+
+    <div class="menu-content">
+      <!-- Self -->
+      <div class="menu-section active" id="tab-self">
+        <div class="menu-item" data-action="godmode">God Mode
+          <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="menu-item" data-action="invisibility">Invisibility
+          <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="menu-item" data-action="health">Set Health <span>100</span></div>
+        <div class="menu-item" data-action="armor">Set Armor <span>100</span></div>
       </div>
-      <div class="menu-item" data-action="invisible">Invisibility
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+
+      <!-- Spawner -->
+      <div class="menu-section" id="tab-spawner">
+        <div class="menu-item">Spawn Vehicle</div>
+        <div class="menu-item">Spawn Object</div>
+        <div class="menu-item">Clear Nearby</div>
       </div>
-      <div class="menu-item" data-action="health">Set Health <span>100</span></div>
-      <div class="menu-item" data-action="armor">Set Armor <span>100</span></div>
-      <div class="menu-item" data-action="anti-afk">Anti-AFK
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+
+      <!-- Online -->
+      <div class="menu-section" id="tab-online">
+        <div class="menu-item">Show Player List</div>
+        <div class="menu-item">Teleport to Player</div>
+        <div class="menu-item">Send Message</div>
       </div>
-      <div class="menu-item" data-action="inf-stamina">Infinite Stamina
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-      </div>
-      <div class="menu-item" data-action="oxygen">Infinite Oxygen
-        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+
+      <!-- Misc -->
+      <div class="menu-section" id="tab-misc">
+        <div class="menu-item">Weather Control</div>
+        <div class="menu-item">Time Control</div>
+        <div class="menu-item">UI Settings</div>
       </div>
     </div>
+
     <div class="menu-footer">
-      <div>UI Build 1.3</div><div>© 2025</div>
+      <div>UI Build 1.4</div><div>© 2025</div>
     </div>
   </div>
 </div>
@@ -172,12 +216,22 @@
 
 <script>
 (function(){
-  const items=[...document.querySelectorAll('.menu-item')];
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('.menu-section');
   const notifBox=document.getElementById('notifications');
+  const items=[...document.querySelectorAll('.menu-item')];
   let idx=0;
-  items[idx].classList.add('selected');
 
-  function update(){items.forEach((el,i)=>el.classList.toggle('selected',i===idx));}
+  // tab switching
+  tabs.forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      tabs.forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      const name=tab.dataset.tab;
+      sections.forEach(s=>s.classList.toggle('active',s.id==='tab-'+name));
+    });
+  });
+
   function showNotif(msg){
     const n=document.createElement('div');
     n.className='notif';n.textContent=msg;
@@ -198,18 +252,15 @@
   }
 
   window.addEventListener('keydown',e=>{
-    if(e.key==='ArrowDown'){idx=(idx+1)%items.length;update();}
-    else if(e.key==='ArrowUp'){idx=(idx-1+items.length)%items.length;update();}
-    else if(e.key==='Enter'){sendAction(items[idx].dataset.action);}
-    else if(e.key==='Backspace'||e.key==='Escape'){
+    if(e.key==='Backspace'||e.key==='Escape'){
       const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
       if(res){fetch(`https://${res}/close`,{method:'POST',body:'{}'});}
       else document.getElementById('overlay').style.display='none';
     }
   });
 
-  document.querySelectorAll('.menu-item').forEach(el=>{
-    el.addEventListener('click',()=>sendAction(el.dataset.action));
+  items.forEach(el=>{
+    el.addEventListener('click',()=>sendAction(el.dataset.action || el.textContent.trim()));
   });
 
   window.addEventListener('message',ev=>{
