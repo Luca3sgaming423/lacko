@@ -2,181 +2,197 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Top Menu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lacko Menu</title>
 <style>
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent !important;
+  margin: 0; padding: 0; height: 100%;
   overflow: hidden;
+  background: transparent;
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
   color: #eaf1ff;
-  user-select: none;
 }
 
-/* container */
-#menuContainer {
+#overlay {
   position: fixed;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(15,23,42,0.75);
-  backdrop-filter: blur(12px);
-  border-radius: 12px;
-  border: 1px solid rgba(100,150,255,0.25);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+}
+
+.menu {
+  width: 360px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(18px);
+  border-radius: 14px;
+  border: 1px solid rgba(120,150,255,0.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-width: 600px;
-  animation: fadeIn .25s ease;
 }
 
-@keyframes fadeIn {
-  from {opacity:0; transform: translate(-50%,-10px);}
-  to {opacity:1; transform: translate(-50%,0);}
+.menu-header {
+  background: linear-gradient(90deg,#3b82f6,#1e3a8a);
+  padding: 14px 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(0,0,0,.4);
 }
 
-/* tabs row */
-#tabs {
-  display: flex;
-  justify-content: center;
-  padding: 10px;
-  gap: 10px;
+.menu-list {
+  padding: 10px 16px;
+  flex: 1;
 }
 
-.tab {
-  padding: 10px 18px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all .15s;
-}
-.tab:hover { background: rgba(59,130,246,0.25); }
-.tab.active {
-  background: rgba(59,130,246,0.45);
-  box-shadow: inset 0 0 6px rgba(59,130,246,0.5);
-}
+.menu-list.hidden { display: none; }
 
-/* content panels */
-.panel {
-  display: none;
-  flex-direction: column;
-  padding: 10px 20px 20px 20px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.option {
-  margin: 6px 0;
+.menu-item {
+  background: rgba(255,255,255,0.07);
+  border-radius: 10px;
   padding: 10px 14px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 8px;
+  margin: 6px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  transition: background .15s;
+  font-size: 16px;
+  transition: all .15s ease-in-out;
 }
-.option:hover { background: rgba(59,130,246,0.25); }
 
-/* toggle switch */
-.switch {
-  width: 38px; height: 20px;
+.menu-item.selected {
+  background: rgba(59,130,246,0.25);
+  box-shadow: -3px 0 10px rgba(59,130,246,0.3);
+  color: #fff;
+}
+
+.toggle {
+  width: 34px;
+  height: 18px;
   border-radius: 20px;
   background: rgba(255,255,255,0.25);
   position: relative;
-  transition: 0.25s;
+  transition: .25s;
 }
-.switch::before {
+.toggle::before {
   content: "";
   position: absolute;
-  top: 2px; left: 2px;
-  width: 16px; height: 16px;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #fff;
-  transition: 0.25s;
+  background: white;
+  transition: .25s;
 }
-.switch.on { background: #3b82f6; }
-.switch.on::before { transform: translateX(18px); }
+.toggle.active { background: #3b82f6; }
+.toggle.active::before { transform: translateX(16px); }
+
+.menu-footer {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 8px 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  justify-content: space-between;
+}
 </style>
 </head>
 <body>
+<div id="overlay">
+  <div class="menu">
+    <div class="menu-header" id="menuTitle">Control Panel</div>
 
-<div id="menuContainer">
-  <div id="tabs">
-    <div class="tab active" data-panel="self">Self</div>
-    <div class="tab" data-panel="spawner">Spawner</div>
-    <div class="tab" data-panel="online">Online</div>
-    <div class="tab" data-panel="misc">Misc</div>
-  </div>
+    <!-- MAIN -->
+    <div class="menu-list" id="mainMenu">
+      <div class="menu-item" data-open="self">Self Options ›</div>
+      <div class="menu-item" data-open="spawner">Spawner ›</div>
+      <div class="menu-item" data-open="online">Online ›</div>
+      <div class="menu-item" data-open="misc">Misc ›</div>
+    </div>
 
-  <!-- SELF -->
-  <div class="panel" id="panel-self" style="display:flex;">
-    <div class="option" data-func="godmode">God Mode <div class="switch"></div></div>
-    <div class="option" data-func="invisible">Invisibility <div class="switch"></div></div>
-    <div class="option" data-func="noclip">Noclip <div class="switch"></div></div>
-    <div class="option" data-func="stamina">Infinite Stamina <div class="switch"></div></div>
-  </div>
+    <!-- SELF -->
+    <div class="menu-list hidden" id="menu-self">
+      <div class="menu-item" data-type="toggle">God Mode <div class="toggle"></div></div>
+      <div class="menu-item" data-type="toggle">Invisibility <div class="toggle"></div></div>
+      <div class="menu-item" data-type="toggle">Noclip <div class="toggle"></div></div>
+      <div class="menu-item">Set Health: 100</div>
+      <div class="menu-item">Set Armor: 100</div>
+      <div class="menu-item" data-type="toggle">Infinite Stamina <div class="toggle"></div></div>
+    </div>
 
-  <!-- SPAWNER -->
-  <div class="panel" id="panel-spawner">
-    <div class="option" data-func="spawn_vehicle">Spawn Vehicle</div>
-    <div class="option" data-func="spawn_object">Spawn Object</div>
-  </div>
+    <!-- SPAWNER -->
+    <div class="menu-list hidden" id="menu-spawner">
+      <div class="menu-item">Spawn Vehicle</div>
+      <div class="menu-item">Spawn Object</div>
+    </div>
 
-  <!-- ONLINE -->
-  <div class="panel" id="panel-online">
-    <div class="option" data-func="player_list">Show Player List</div>
-  </div>
+    <!-- ONLINE -->
+    <div class="menu-list hidden" id="menu-online">
+      <div class="menu-item">Player List</div>
+    </div>
 
-  <!-- MISC -->
-  <div class="panel" id="panel-misc">
-    <div class="option" data-func="weather">Change Weather</div>
-    <div class="option" data-func="clear_area">Clear Area</div>
+    <!-- MISC -->
+    <div class="menu-list hidden" id="menu-misc">
+      <div class="menu-item">Weather Control</div>
+    </div>
+
+    <div class="menu-footer"><div>UI v1.7</div><div>© 2025</div></div>
   </div>
 </div>
 
 <script>
-// switch panels
-const tabs = document.querySelectorAll('.tab');
-const panels = document.querySelectorAll('.panel');
+(function(){
+  const title=document.getElementById('menuTitle');
+  const main=document.getElementById('mainMenu');
+  const menus={self:document.getElementById('menu-self'),
+               spawner:document.getElementById('menu-spawner'),
+               online:document.getElementById('menu-online'),
+               misc:document.getElementById('menu-misc')};
+  let current='main',index=0;
 
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    panels.forEach(p => p.style.display = 'none');
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.panel).style.display = 'flex';
-  });
-});
+  function currentList(){return current==='main'?main:menus[current];}
+  function highlight(){
+    const items=currentList().querySelectorAll('.menu-item');
+    items.forEach((el,i)=>el.classList.toggle('selected',i===index));
+  }
+  function show(name){
+    main.classList.add('hidden');
+    for(const k in menus)menus[k].classList.add('hidden');
+    if(name==='main'){main.classList.remove('hidden');title.textContent='Control Panel';current='main';}
+    else{menus[name].classList.remove('hidden');title.textContent=name.charAt(0).toUpperCase()+name.slice(1)+' Options';current=name;}
+    index=0;highlight();
+  }
 
-// option toggle clicks
-document.querySelectorAll('.option').forEach(opt => {
-  opt.addEventListener('click', () => {
-    const func = opt.dataset.func;
-    const toggle = opt.querySelector('.switch');
-    let state = false;
+  highlight();
 
-    if (toggle) {
-      toggle.classList.toggle('on');
-      state = toggle.classList.contains('on');
+  document.addEventListener('keydown',e=>{
+    const list=currentList();const items=list.querySelectorAll('.menu-item');
+    if(!items.length)return;
+
+    if(e.key==='ArrowDown'){index=(index+1)%items.length;highlight();}
+    else if(e.key==='ArrowUp'){index=(index-1+items.length)%items.length;highlight();}
+    else if(e.key==='Enter'){
+      const it=items[index];if(!it)return;
+      if(it.dataset.open){show(it.dataset.open);return;}
+      if(it.dataset.type==='toggle'){
+        const tog=it.querySelector('.toggle');
+        const on=tog.classList.toggle('active');
+        const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
+        if(res){fetch(`https://${res}/menuAction`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({option:it.textContent.trim(),enabled:on})});}
+      }
     }
-
-    const res = (typeof GetParentResourceName === 'function') ? GetParentResourceName() : null;
-    if (res) {
-      fetch(`https://${res}/${func}`, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ enabled: state })
-      });
+    else if(e.key==='Backspace'){
+      if(current!=='main')show('main');
+      else{
+        const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
+        if(res){fetch(`https://${res}/close`,{method:'POST',body:'{}'});}
+      }
     }
   });
-});
+})();
 </script>
 </body>
 </html>
