@@ -3,98 +3,84 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Top Control Menu</title>
+<title>Top Menu</title>
 <style>
-html,body {
+html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  height: 100%;
   background: transparent !important;
+  overflow: hidden;
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
   color: #eaf1ff;
-  overflow: hidden;
   user-select: none;
 }
 
-/* hidden by default - shown by Lua (F5) */
-#overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 999;
-}
-
-/* top bar container */
-#topbar {
+/* container */
+#menuContainer {
   position: fixed;
   top: 60px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15,23,42,0.75);
   backdrop-filter: blur(12px);
   border-radius: 12px;
   border: 1px solid rgba(100,150,255,0.25);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-  padding: 10px 16px;
-  z-index: 1000;
-  animation: fadeIn 0.25s ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 600px;
+  animation: fadeIn .25s ease;
 }
 
 @keyframes fadeIn {
-  from {opacity: 0; transform: translate(-50%, -10px);}
-  to {opacity: 1; transform: translate(-50%, 0);}
+  from {opacity:0; transform: translate(-50%,-10px);}
+  to {opacity:1; transform: translate(-50%,0);}
 }
 
-/* category buttons */
-.btn {
-  margin: 0 8px;
+/* tabs row */
+#tabs {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  gap: 10px;
+}
+
+.tab {
   padding: 10px 18px;
-  font-size: 15px;
-  color: #eaf1ff;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
   cursor: pointer;
-  transition: all .15s ease-in-out;
+  transition: all .15s;
 }
-.btn:hover { background: rgba(59,130,246,0.25); }
-.btn.active {
+.tab:hover { background: rgba(59,130,246,0.25); }
+.tab.active {
   background: rgba(59,130,246,0.45);
   box-shadow: inset 0 0 6px rgba(59,130,246,0.5);
 }
 
-/* dropdown panels */
-.dropdown {
-  position: absolute;
-  top: 115%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(15,23,42,0.9);
-  backdrop-filter: blur(12px);
-  border-radius: 10px;
-  border: 1px solid rgba(100,150,255,0.25);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-  padding: 10px;
+/* content panels */
+.panel {
   display: none;
   flex-direction: column;
-  min-width: 340px;
-  text-align: left;
-  animation: fadeIn 0.2s ease;
+  padding: 10px 20px 20px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* each option toggle */
 .option {
-  padding: 10px 12px;
-  margin: 5px 0;
-  border-radius: 8px;
+  margin: 6px 0;
+  padding: 10px 14px;
   background: rgba(255,255,255,0.06);
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background .15s ease;
   cursor: pointer;
+  transition: background .15s;
 }
 .option:hover { background: rgba(59,130,246,0.25); }
 
@@ -120,16 +106,17 @@ html,body {
 </style>
 </head>
 <body>
-<div id="overlay">
-  <div id="topbar">
-    <div class="btn" data-menu="self">Self</div>
-    <div class="btn" data-menu="spawner">Spawner</div>
-    <div class="btn" data-menu="online">Online</div>
-    <div class="btn" data-menu="misc">Misc</div>
+
+<div id="menuContainer">
+  <div id="tabs">
+    <div class="tab active" data-panel="self">Self</div>
+    <div class="tab" data-panel="spawner">Spawner</div>
+    <div class="tab" data-panel="online">Online</div>
+    <div class="tab" data-panel="misc">Misc</div>
   </div>
 
   <!-- SELF -->
-  <div class="dropdown" id="menu-self">
+  <div class="panel" id="panel-self" style="display:flex;">
     <div class="option" data-func="godmode">God Mode <div class="switch"></div></div>
     <div class="option" data-func="invisible">Invisibility <div class="switch"></div></div>
     <div class="option" data-func="noclip">Noclip <div class="switch"></div></div>
@@ -137,70 +124,38 @@ html,body {
   </div>
 
   <!-- SPAWNER -->
-  <div class="dropdown" id="menu-spawner">
+  <div class="panel" id="panel-spawner">
     <div class="option" data-func="spawn_vehicle">Spawn Vehicle</div>
     <div class="option" data-func="spawn_object">Spawn Object</div>
   </div>
 
   <!-- ONLINE -->
-  <div class="dropdown" id="menu-online">
+  <div class="panel" id="panel-online">
     <div class="option" data-func="player_list">Show Player List</div>
   </div>
 
   <!-- MISC -->
-  <div class="dropdown" id="menu-misc">
+  <div class="panel" id="panel-misc">
     <div class="option" data-func="weather">Change Weather</div>
     <div class="option" data-func="clear_area">Clear Area</div>
   </div>
 </div>
 
 <script>
-const overlay = document.getElementById("overlay");
-const buttons = document.querySelectorAll('.btn');
-const dropdowns = document.querySelectorAll('.dropdown');
-let activeMenu = null;
+// switch panels
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
 
-// receives F5 toggle from Lua
-window.addEventListener('message', (e) => {
-  if (e.data.action === "toggleMenu") {
-    const visible = overlay.style.display === "flex";
-    overlay.style.display = visible ? "none" : "flex";
-    if (!visible) {
-      dropdowns.forEach(m => m.style.display = 'none');
-      buttons.forEach(b => b.classList.remove('active'));
-      activeMenu = null;
-    }
-  }
-});
-
-buttons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.menu;
-    const menu = document.getElementById('menu-' + target);
-
-    if (activeMenu === menu) {
-      menu.style.display = 'none';
-      btn.classList.remove('active');
-      activeMenu = null;
-      return;
-    }
-    dropdowns.forEach(m => m.style.display = 'none');
-    buttons.forEach(b => b.classList.remove('active'));
-    menu.style.display = 'flex';
-    btn.classList.add('active');
-    activeMenu = menu;
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.style.display = 'none');
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).style.display = 'flex';
   });
 });
 
-window.addEventListener('click', e => {
-  if (!e.target.classList.contains('btn') && !e.target.closest('.dropdown')) {
-    dropdowns.forEach(m => m.style.display = 'none');
-    buttons.forEach(b => b.classList.remove('active'));
-    activeMenu = null;
-  }
-});
-
-// handle toggle buttons
+// option toggle clicks
 document.querySelectorAll('.option').forEach(opt => {
   opt.addEventListener('click', () => {
     const func = opt.dataset.func;
@@ -216,7 +171,7 @@ document.querySelectorAll('.option').forEach(opt => {
     if (res) {
       fetch(`https://${res}/${func}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ enabled: state })
       });
     }
