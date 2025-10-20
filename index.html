@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>TopBar Menu</title>
+<title>Top Control Menu</title>
 <style>
-html, body {
+html,body {
   margin: 0;
   padding: 0;
   background: transparent !important;
@@ -15,10 +15,10 @@ html, body {
   user-select: none;
 }
 
-/* top bar */
+/* top bar container */
 #topbar {
   position: fixed;
-  top: 30px;
+  top: 60px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -26,16 +26,16 @@ html, body {
   background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(12px);
   border-radius: 12px;
-  border: 1px solid rgba(100, 150, 255, 0.25);
+  border: 1px solid rgba(100,150,255,0.25);
   box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-  padding: 8px 12px;
+  padding: 10px 16px;
   z-index: 1000;
 }
 
-/* each button */
+/* category buttons */
 .btn {
   margin: 0 6px;
-  padding: 8px 14px;
+  padding: 9px 16px;
   font-size: 15px;
   color: #eaf1ff;
   background: rgba(255,255,255,0.08);
@@ -44,22 +44,19 @@ html, body {
   cursor: pointer;
   transition: all .15s ease-in-out;
 }
-.btn:hover {
-  background: rgba(59,130,246,0.25);
-  box-shadow: 0 0 10px rgba(59,130,246,0.3);
-}
+.btn:hover { background: rgba(59,130,246,0.25); }
 .btn.active {
   background: rgba(59,130,246,0.45);
   box-shadow: inset 0 0 6px rgba(59,130,246,0.5);
 }
 
-/* dropdown panels */
+/* dropdowns */
 .dropdown {
   position: absolute;
-  top: 55px;
+  top: 105%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15,23,42,0.9);
   backdrop-filter: blur(12px);
   border-radius: 10px;
   border: 1px solid rgba(100,150,255,0.25);
@@ -67,26 +64,51 @@ html, body {
   padding: 10px;
   display: none;
   flex-direction: column;
-  min-width: 320px;
+  min-width: 340px;
   text-align: left;
   animation: fadeIn 0.2s ease;
 }
-
 @keyframes fadeIn {
   from {opacity: 0; transform: translate(-50%, -10px);}
   to {opacity: 1; transform: translate(-50%, 0);}
 }
 
+/* each option toggle */
 .option {
-  padding: 8px 10px;
-  margin: 3px 0;
-  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 5px 0;
+  border-radius: 8px;
   background: rgba(255,255,255,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   transition: background .15s ease;
   cursor: pointer;
 }
-.option:hover {
-  background: rgba(59,130,246,0.25);
+.option:hover { background: rgba(59,130,246,0.25); }
+
+/* toggle switch */
+.switch {
+  width: 38px; height: 20px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.25);
+  position: relative;
+  transition: 0.25s;
+}
+.switch::before {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: 0.25s;
+}
+.switch.on {
+  background: #3b82f6;
+}
+.switch.on::before {
+  transform: translateX(18px);
 }
 </style>
 </head>
@@ -98,26 +120,29 @@ html, body {
   <div class="btn" data-menu="misc">Misc</div>
 </div>
 
-<!-- Dropdown Menus -->
+<!-- SELF -->
 <div class="dropdown" id="menu-self">
-  <div class="option">God Mode</div>
-  <div class="option">Invisibility</div>
-  <div class="option">Noclip</div>
-  <div class="option">Infinite Stamina</div>
+  <div class="option" data-func="godmode">God Mode <div class="switch"></div></div>
+  <div class="option" data-func="invisible">Invisibility <div class="switch"></div></div>
+  <div class="option" data-func="noclip">Noclip <div class="switch"></div></div>
+  <div class="option" data-func="stamina">Infinite Stamina <div class="switch"></div></div>
 </div>
 
+<!-- SPAWNER -->
 <div class="dropdown" id="menu-spawner">
-  <div class="option">Spawn Vehicle</div>
-  <div class="option">Spawn Object</div>
+  <div class="option" data-func="spawn_vehicle">Spawn Vehicle</div>
+  <div class="option" data-func="spawn_object">Spawn Object</div>
 </div>
 
+<!-- ONLINE -->
 <div class="dropdown" id="menu-online">
-  <div class="option">Player List</div>
+  <div class="option" data-func="player_list">Show Player List</div>
 </div>
 
+<!-- MISC -->
 <div class="dropdown" id="menu-misc">
-  <div class="option">Weather Control</div>
-  <div class="option">Clear Area</div>
+  <div class="option" data-func="weather">Change Weather</div>
+  <div class="option" data-func="clear_area">Clear Area</div>
 </div>
 
 <script>
@@ -129,20 +154,14 @@ buttons.forEach(btn => {
   btn.addEventListener('click', () => {
     const target = btn.dataset.menu;
     const menu = document.getElementById('menu-' + target);
-
-    // close if same menu
     if (activeMenu === menu) {
-      activeMenu.style.display = 'none';
+      menu.style.display = 'none';
       btn.classList.remove('active');
       activeMenu = null;
       return;
     }
-
-    // close others
     dropdowns.forEach(m => m.style.display = 'none');
     buttons.forEach(b => b.classList.remove('active'));
-
-    // open new
     menu.style.display = 'flex';
     btn.classList.add('active');
     activeMenu = menu;
@@ -150,23 +169,32 @@ buttons.forEach(btn => {
 });
 
 // hide menu when clicking outside
-window.addEventListener('click', (e) => {
-  if (!e.target.classList.contains('btn') && !e.target.classList.contains('option')) {
+window.addEventListener('click', e => {
+  if (!e.target.classList.contains('btn') && !e.target.closest('.dropdown')) {
     dropdowns.forEach(m => m.style.display = 'none');
     buttons.forEach(b => b.classList.remove('active'));
     activeMenu = null;
   }
 });
 
-// when clicking option
+// handle toggles
 document.querySelectorAll('.option').forEach(opt => {
   opt.addEventListener('click', () => {
+    const func = opt.dataset.func;
+    const toggle = opt.querySelector('.switch');
+    let state = false;
+
+    if (toggle) {
+      toggle.classList.toggle('on');
+      state = toggle.classList.contains('on');
+    }
+
     const res = (typeof GetParentResourceName === 'function') ? GetParentResourceName() : null;
     if (res) {
-      fetch(`https://${res}/menuAction`, {
+      fetch(`https://${res}/${func}`, {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ option: opt.textContent })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: state })
       });
     }
   });
