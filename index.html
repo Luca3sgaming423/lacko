@@ -3,218 +3,219 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phaze Menu</title>
+<title>Glass UI Panel</title>
 <style>
   html,body {
     margin:0;padding:0;height:100%;overflow:hidden;
     font-family:"Segoe UI",Roboto,Arial,sans-serif;
     background:transparent;
     color:#eaf1ff;
-    user-select:none;
   }
 
-  /* main container anchored right */
+  /* anchored to right center */
   #overlay {
     position:fixed;
     right:40px;
     top:50%;
     transform:translateY(-50%);
-    z-index:1000;
     pointer-events:auto;
-    animation:slideIn .35s ease-out;
+    z-index:1000;
+    animation:fadeIn .3s ease-out;
   }
 
-  @keyframes slideIn {
-    from{opacity:0;transform:translate(150px,-50%);}
-    to{opacity:1;transform:translate(0,-50%);}
-  }
+  @keyframes fadeIn { from{opacity:0;transform:translate(60px,-50%);} to{opacity:1;transform:translate(0,-50%);} }
 
+  /* glass panel */
   .menu {
-    width:360px;
-    background:rgba(12,18,30,0.85);
+    width:340px;
+    background:rgba(15,23,42,0.55);
     backdrop-filter:blur(18px);
-    border-radius:16px;
-    box-shadow:0 0 25px rgba(37,99,235,0.25);
+    border-radius:14px;
+    border:1px solid rgba(120,150,255,0.25);
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
     overflow:hidden;
     display:flex;
     flex-direction:column;
   }
 
   .menu-header {
-    background:linear-gradient(90deg,#2563eb,#1d4ed8);
-    padding:16px;
-    font-size:26px;
-    font-weight:700;
+    background:linear-gradient(90deg,#3b82f6,#1e3a8a);
+    padding:14px 16px;
+    font-size:22px;
+    font-weight:600;
     color:#fff;
+    letter-spacing:.5px;
     text-shadow:0 0 8px rgba(0,0,0,0.4);
-    letter-spacing:1px;
   }
 
   .menu-list {
-    padding:10px 14px;
     flex:1;
+    padding:10px 14px;
   }
 
   .menu-item {
-    background:rgba(255,255,255,0.04);
+    background:rgba(255,255,255,0.07);
     border-radius:10px;
-    padding:12px 16px;
+    padding:10px 14px;
     margin:6px 0;
-    font-size:17px;
-    color:#dbe7ff;
-    cursor:pointer;
-    transition:all .15s ease-in-out;
     display:flex;
     justify-content:space-between;
     align-items:center;
+    font-size:16px;
+    cursor:pointer;
+    transition:all .15s ease-in-out;
   }
 
   .menu-item:hover {
-    background:rgba(255,255,255,0.07);
+    background:rgba(255,255,255,0.12);
     transform:translateX(-4px);
   }
 
   .menu-item.selected {
-    background:linear-gradient(270deg,rgba(37,99,235,0.95),rgba(59,130,246,0.85));
+    background:rgba(59,130,246,0.25);
     color:#fff;
-    transform:translateX(-8px);
-    box-shadow:-4px 0 15px rgba(37,99,235,0.3);
+    box-shadow:-3px 0 10px rgba(59,130,246,0.3);
   }
 
-  .menu-item::before {
-    content:"";
-    width:6px;
-    height:6px;
+  /* toggle switch */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 20px;
+  }
+  .switch input { display:none; }
+  .slider {
+    position:absolute;
+    cursor:pointer;
+    top:0;left:0;right:0;bottom:0;
+    background-color:rgba(255,255,255,0.25);
+    transition:.3s;border-radius:20px;
+  }
+  .slider:before {
+    position:absolute;content:"";
+    height:16px;width:16px;
+    left:2px;bottom:2px;
+    background-color:#fff;
     border-radius:50%;
-    background:transparent;
-    margin-right:10px;
+    transition:.3s;
   }
-  .menu-item.selected::before { background:#fff; }
+  input:checked + .slider {background-color:#3b82f6;}
+  input:checked + .slider:before {transform:translateX(18px);}
 
+  /* footer */
   .menu-footer {
-    display:flex;
-    justify-content:space-between;
+    border-top:1px solid rgba(255,255,255,0.07);
     padding:8px 14px;
     font-size:12px;
     color:rgba(255,255,255,0.6);
-    border-top:1px solid rgba(255,255,255,0.08);
+    display:flex;justify-content:space-between;
   }
 
-  /* notifications bottom right */
+  /* notifications */
   #notifications {
     position:fixed;
     bottom:30px;
     right:40px;
-    width:280px;
+    width:260px;
     display:flex;
     flex-direction:column;
     gap:10px;
     z-index:1100;
   }
   .notif {
-    background:rgba(18,25,40,0.92);
-    backdrop-filter:blur(12px);
-    border-left:4px solid #2563eb;
-    padding:12px 14px;
-    border-radius:10px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.5);
+    background:rgba(30,41,59,0.7);
+    backdrop-filter:blur(10px);
+    border-left:3px solid #3b82f6;
     color:#eaf1ff;
-    font-size:15px;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:14px;
     opacity:0;
     transform:translateX(40px);
     animation:notifIn .3s forwards, notifOut .3s 4.7s forwards;
   }
-  @keyframes notifIn {
-    to {opacity:1;transform:translateX(0);}
-  }
-  @keyframes notifOut {
-    to {opacity:0;transform:translateX(40px);}
-  }
-
+  @keyframes notifIn { to{opacity:1;transform:translateX(0);} }
+  @keyframes notifOut { to{opacity:0;transform:translateX(40px);} }
 </style>
 </head>
 <body>
 <div id="overlay">
-  <div id="injected-container">
-    <div class="menu" id="defaultMenu">
-      <div class="menu-header">Phaze</div>
-      <div class="menu-list" id="menuList">
-        <div class="menu-item" data-action="player">👤 Player</div>
-        <div class="menu-item" data-action="server">🌐 Server</div>
-        <div class="menu-item" data-action="weapon">🔫 Weapon</div>
-        <div class="menu-item" data-action="combat">⚔️ Combat</div>
-        <div class="menu-item" data-action="vehicle">🚗 Vehicle</div>
-        <div class="menu-item" data-action="visual">🎨 Visual</div>
-        <div class="menu-item" data-action="misc">🧩 Misc</div>
-        <div class="menu-item" data-action="settings">⚙️ Settings</div>
+  <div class="menu" id="menuBox">
+    <div class="menu-header">Control Panel</div>
+    <div class="menu-list">
+      <div class="menu-item" data-action="godmode">God Mode
+        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
       </div>
-      <div class="menu-footer">
-        <div>Phaze UI</div><div>v1.2</div>
+      <div class="menu-item" data-action="invisible">Invisibility
+        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
       </div>
+      <div class="menu-item" data-action="health">Set Health <span>100</span></div>
+      <div class="menu-item" data-action="armor">Set Armor <span>100</span></div>
+      <div class="menu-item" data-action="anti-afk">Anti-AFK
+        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+      </div>
+      <div class="menu-item" data-action="inf-stamina">Infinite Stamina
+        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+      </div>
+      <div class="menu-item" data-action="oxygen">Infinite Oxygen
+        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+      </div>
+    </div>
+    <div class="menu-footer">
+      <div>UI Build 1.3</div><div>© 2025</div>
     </div>
   </div>
 </div>
 
-<!-- notification container -->
 <div id="notifications"></div>
 
 <script>
 (function(){
-  const container=document.getElementById('injected-container');
-  const overlay=document.getElementById('overlay');
+  const items=[...document.querySelectorAll('.menu-item')];
   const notifBox=document.getElementById('notifications');
-  let items=[];let idx=0;
+  let idx=0;
+  items[idx].classList.add('selected');
 
-  function collect(){
-    items=[...container.querySelectorAll('.menu-item')];
-    if(!items.length)return;
-    items.forEach(i=>i.classList.remove('selected'));
-    idx=0;items[idx].classList.add('selected');
+  function update(){items.forEach((el,i)=>el.classList.toggle('selected',i===idx));}
+  function showNotif(msg){
+    const n=document.createElement('div');
+    n.className='notif';n.textContent=msg;
+    notifBox.appendChild(n);
+    setTimeout(()=>notifBox.removeChild(n),5000);
   }
-  function update(){items.forEach((i,n)=>i.classList.toggle('selected',n===idx));}
 
-  function action(a){
-    showNotif('Selected: '+a);
+  function sendAction(act){
+    showNotif('Selected: '+act);
     const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
     if(res){
-      fetch(`https://${res}/menuAction`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:a})});
+      fetch(`https://${res}/menuAction`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:act})
+      });
     }
   }
 
-  function close(){
-    const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
-    if(res){
-      fetch(`https://${res}/close`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
-    }else overlay.style.display='none';
-  }
-
-  function inject(html){container.innerHTML=html;collect();}
-  function showNotif(msg){
-    const n=document.createElement('div');
-    n.className='notif';
-    n.textContent=msg;
-    notifBox.appendChild(n);
-    setTimeout(()=>{notifBox.removeChild(n);},5000);
-  }
-
   window.addEventListener('keydown',e=>{
-    if(e.key==='ArrowDown'){idx=(idx+1)%items.length;update();e.preventDefault();}
-    else if(e.key==='ArrowUp'){idx=(idx-1+items.length)%items.length;update();e.preventDefault();}
-    else if(e.key==='Enter'){const el=items[idx];if(el)action(el.dataset.action||el.textContent.trim());}
-    else if(e.key==='Backspace'||e.key==='Escape'){close();}
+    if(e.key==='ArrowDown'){idx=(idx+1)%items.length;update();}
+    else if(e.key==='ArrowUp'){idx=(idx-1+items.length)%items.length;update();}
+    else if(e.key==='Enter'){sendAction(items[idx].dataset.action);}
+    else if(e.key==='Backspace'||e.key==='Escape'){
+      const res=(typeof GetParentResourceName==='function')?GetParentResourceName():null;
+      if(res){fetch(`https://${res}/close`,{method:'POST',body:'{}'});}
+      else document.getElementById('overlay').style.display='none';
+    }
   });
-  container.addEventListener('click',ev=>{
-    const el=ev.target.closest('.menu-item');
-    if(!el)return;
-    action(el.dataset.action||el.textContent.trim());
+
+  document.querySelectorAll('.menu-item').forEach(el=>{
+    el.addEventListener('click',()=>sendAction(el.dataset.action));
   });
+
   window.addEventListener('message',ev=>{
     const d=ev.data;if(!d)return;
-    if(d.action==='open'&&d.html)inject(d.html);
-    else if(d.action==='notify'&&d.text)showNotif(d.text);
-    else if(d.action==='close')close();
+    if(d.action==='notify'&&d.text)showNotif(d.text);
   });
-  collect();
 })();
 </script>
 </body>
