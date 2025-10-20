@@ -15,6 +15,15 @@ html,body {
   user-select: none;
 }
 
+/* hidden by default - shown by Lua (F5) */
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 999;
+}
+
 /* top bar container */
 #topbar {
   position: fixed;
@@ -23,19 +32,25 @@ html,body {
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(12px);
   border-radius: 12px;
   border: 1px solid rgba(100,150,255,0.25);
   box-shadow: 0 6px 16px rgba(0,0,0,0.3);
   padding: 10px 16px;
   z-index: 1000;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translate(-50%, -10px);}
+  to {opacity: 1; transform: translate(-50%, 0);}
 }
 
 /* category buttons */
 .btn {
-  margin: 0 6px;
-  padding: 9px 16px;
+  margin: 0 8px;
+  padding: 10px 18px;
   font-size: 15px;
   color: #eaf1ff;
   background: rgba(255,255,255,0.08);
@@ -50,10 +65,10 @@ html,body {
   box-shadow: inset 0 0 6px rgba(59,130,246,0.5);
 }
 
-/* dropdowns */
+/* dropdown panels */
 .dropdown {
   position: absolute;
-  top: 105%;
+  top: 115%;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(15,23,42,0.9);
@@ -67,10 +82,6 @@ html,body {
   min-width: 340px;
   text-align: left;
   animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn {
-  from {opacity: 0; transform: translate(-50%, -10px);}
-  to {opacity: 1; transform: translate(-50%, 0);}
 }
 
 /* each option toggle */
@@ -104,56 +115,69 @@ html,body {
   background: #fff;
   transition: 0.25s;
 }
-.switch.on {
-  background: #3b82f6;
-}
-.switch.on::before {
-  transform: translateX(18px);
-}
+.switch.on { background: #3b82f6; }
+.switch.on::before { transform: translateX(18px); }
 </style>
 </head>
 <body>
-<div id="topbar">
-  <div class="btn" data-menu="self">Self</div>
-  <div class="btn" data-menu="spawner">Spawner</div>
-  <div class="btn" data-menu="online">Online</div>
-  <div class="btn" data-menu="misc">Misc</div>
-</div>
+<div id="overlay">
+  <div id="topbar">
+    <div class="btn" data-menu="self">Self</div>
+    <div class="btn" data-menu="spawner">Spawner</div>
+    <div class="btn" data-menu="online">Online</div>
+    <div class="btn" data-menu="misc">Misc</div>
+  </div>
 
-<!-- SELF -->
-<div class="dropdown" id="menu-self">
-  <div class="option" data-func="godmode">God Mode <div class="switch"></div></div>
-  <div class="option" data-func="invisible">Invisibility <div class="switch"></div></div>
-  <div class="option" data-func="noclip">Noclip <div class="switch"></div></div>
-  <div class="option" data-func="stamina">Infinite Stamina <div class="switch"></div></div>
-</div>
+  <!-- SELF -->
+  <div class="dropdown" id="menu-self">
+    <div class="option" data-func="godmode">God Mode <div class="switch"></div></div>
+    <div class="option" data-func="invisible">Invisibility <div class="switch"></div></div>
+    <div class="option" data-func="noclip">Noclip <div class="switch"></div></div>
+    <div class="option" data-func="stamina">Infinite Stamina <div class="switch"></div></div>
+  </div>
 
-<!-- SPAWNER -->
-<div class="dropdown" id="menu-spawner">
-  <div class="option" data-func="spawn_vehicle">Spawn Vehicle</div>
-  <div class="option" data-func="spawn_object">Spawn Object</div>
-</div>
+  <!-- SPAWNER -->
+  <div class="dropdown" id="menu-spawner">
+    <div class="option" data-func="spawn_vehicle">Spawn Vehicle</div>
+    <div class="option" data-func="spawn_object">Spawn Object</div>
+  </div>
 
-<!-- ONLINE -->
-<div class="dropdown" id="menu-online">
-  <div class="option" data-func="player_list">Show Player List</div>
-</div>
+  <!-- ONLINE -->
+  <div class="dropdown" id="menu-online">
+    <div class="option" data-func="player_list">Show Player List</div>
+  </div>
 
-<!-- MISC -->
-<div class="dropdown" id="menu-misc">
-  <div class="option" data-func="weather">Change Weather</div>
-  <div class="option" data-func="clear_area">Clear Area</div>
+  <!-- MISC -->
+  <div class="dropdown" id="menu-misc">
+    <div class="option" data-func="weather">Change Weather</div>
+    <div class="option" data-func="clear_area">Clear Area</div>
+  </div>
 </div>
 
 <script>
+const overlay = document.getElementById("overlay");
 const buttons = document.querySelectorAll('.btn');
 const dropdowns = document.querySelectorAll('.dropdown');
 let activeMenu = null;
+
+// receives F5 toggle from Lua
+window.addEventListener('message', (e) => {
+  if (e.data.action === "toggleMenu") {
+    const visible = overlay.style.display === "flex";
+    overlay.style.display = visible ? "none" : "flex";
+    if (!visible) {
+      dropdowns.forEach(m => m.style.display = 'none');
+      buttons.forEach(b => b.classList.remove('active'));
+      activeMenu = null;
+    }
+  }
+});
 
 buttons.forEach(btn => {
   btn.addEventListener('click', () => {
     const target = btn.dataset.menu;
     const menu = document.getElementById('menu-' + target);
+
     if (activeMenu === menu) {
       menu.style.display = 'none';
       btn.classList.remove('active');
@@ -168,7 +192,6 @@ buttons.forEach(btn => {
   });
 });
 
-// hide menu when clicking outside
 window.addEventListener('click', e => {
   if (!e.target.classList.contains('btn') && !e.target.closest('.dropdown')) {
     dropdowns.forEach(m => m.style.display = 'none');
@@ -177,7 +200,7 @@ window.addEventListener('click', e => {
   }
 });
 
-// handle toggles
+// handle toggle buttons
 document.querySelectorAll('.option').forEach(opt => {
   opt.addEventListener('click', () => {
     const func = opt.dataset.func;
