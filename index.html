@@ -1,122 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Phaze UI</title>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: url('https://i.imgur.com/ZK8u7bE.png') center/cover no-repeat fixed, #0d1117;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
-    color: #e6eef8;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .menu {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 360px;
-    background: rgba(17, 24, 39, 0.95);
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .menu-header {
-    text-align: center;
-    font-size: 34px;
-    font-weight: 700;
-    color: #fff;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  }
-
-  .menu-list {
-    flex: 1;
-    margin-top: 8px;
-    overflow: hidden;
-  }
-
-  .menu-item {
-    padding: 12px 16px;
-    margin: 4px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px;
-    color: #dbe7ff;
-    transition: all 0.15s ease-in-out;
-  }
-
-  .menu-item.selected {
-    background: linear-gradient(90deg, rgba(37,99,235,0.95), rgba(37,99,235,0.85));
-    color: white;
-    transform: translateX(6px);
-    box-shadow: 0 6px 20px rgba(37,99,235,0.12);
-  }
-
-  .menu-footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 12px;
-    font-size: 12px;
-    color: rgba(255,255,255,0.7);
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
+  html,body{height:100%;margin:0;padding:0;background:transparent;font-family:"Segoe UI",Roboto,Arial,sans-serif; -webkit-user-select:none; user-select:none;}
+  #overlay{display:flex;align-items:center;justify-content:center;width:100%;height:100%;pointer-events:auto;}
+  .menu{width:360px;background:rgba(17,24,39,0.96);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);color:#e6eef8;padding:8px;display:flex;flex-direction:column;}
+  .menu-header{font-size:34px;font-weight:700;color:#fff;text-align:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.03);text-shadow:0 2px 8px rgba(0,0,0,0.5)}
+  .menu-list{flex:1;margin-top:8px;overflow:hidden}
+  .menu-item{padding:12px 16px;margin:4px;border-radius:8px;background:transparent;cursor:pointer;font-size:18px;color:#dbe7ff;transition:all .12s ease}
+  .menu-item.selected{background:linear-gradient(90deg, rgba(37,99,235,0.95), rgba(37,99,235,0.85));transform:translateX(6px);color:#fff;box-shadow:0 6px 20px rgba(37,99,235,0.12)}
+  .menu-footer{display:flex;justify-content:space-between;padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.7);border-top:1px solid rgba(255,255,255,0.02);margin-top:8px}
+  /* small helper so injected content fits */
+  #injected-container { width:100%; }
 </style>
 </head>
 <body>
-
-<div id="menu" class="menu">
-  <div class="menu-header">Phaze</div>
-  <div class="menu-list" id="menuList">
-    <div class="menu-item">Player</div>
-    <div class="menu-item">Server</div>
-    <div class="menu-item">Weapon</div>
-    <div class="menu-item">Combat</div>
-    <div class="menu-item">Vehicle</div>
-    <div class="menu-item">Visual</div>
-    <div class="menu-item">Miscellaneous</div>
-    <div class="menu-item">Settings</div>
-    <div class="menu-item">Search</div>
+  <!--
+    This file is dual-purpose:
+      - Standalone: shows a default local menu so you can preview it in a browser.
+      - NUI: accepts injected HTML from client.lua via SendNUIMessage({action:'open', html: '...'})
+  -->
+  <div id="overlay" aria-hidden="false">
+    <div id="injected-container">
+      <!-- Default content (shown if nothing injected). You can replace this with any layout.
+           When remote HTML is injected, it replaces this innerHTML. -->
+      <div class="menu" id="defaultMenu">
+        <div class="menu-header">Phaze</div>
+        <div class="menu-list" id="menuList">
+          <div class="menu-item" data-action="player">Player</div>
+          <div class="menu-item" data-action="server">Server</div>
+          <div class="menu-item" data-action="weapon">Weapon</div>
+          <div class="menu-item" data-action="combat">Combat</div>
+          <div class="menu-item" data-action="vehicle">Vehicle</div>
+          <div class="menu-item" data-action="visual">Visual</div>
+          <div class="menu-item" data-action="misc">Miscellaneous</div>
+          <div class="menu-item" data-action="settings">Settings</div>
+          <div class="menu-item" data-action="search">Search</div>
+        </div>
+        <div class="menu-footer"><div>306668 | 22d ago</div><div>1/9</div></div>
+      </div>
+    </div>
   </div>
-  <div class="menu-footer">
-    <div>306668 | 22d ago</div>
-    <div>1/9</div>
-  </div>
-</div>
 
 <script>
-  const items = Array.from(document.querySelectorAll('.menu-item'));
-  let selectedIndex = 0;
-  items[selectedIndex].classList.add('selected');
+/*
+  Behavior:
+    - If this page receives a window message like:
+        { action: 'open', html: '...raw-html...' }
+      it will replace the injected container's innerHTML with that HTML (and initialize keyboard nav).
+    - If no injection occurs (standalone), it will operate on the default markup already in the file.
+    - Keyboard:
+        ArrowUp/ArrowDown -> move selection (looks for .menu-item)
+        Enter -> triggers a POST to the lua resource endpoint: https://<resource>/menuAction with { action: <action> }
+        Backspace or Escape -> closes the menu and sends close POST to https://<resource>/close
+    - Clicks on elements with data-action will post menuAction too.
+*/
 
-  function updateSelection() {
-    items.forEach((el, i) => el.classList.toggle('selected', i === selectedIndex));
+(function () {
+  const container = document.getElementById('injected-container');
+  const overlay = document.getElementById('overlay');
+
+  let visible = true; // when used as NUI, SendNUIMessage will open; in browser keep visible
+  let items = [];
+  let selectedIndex = 0;
+
+  function collectItems() {
+    items = Array.from(container.querySelectorAll('.menu-item'));
+    if (items.length === 0) return;
+    const preSel = items.findIndex(el => el.classList.contains('selected'));
+    selectedIndex = preSel >= 0 ? preSel : 0;
+    updateSelection();
   }
 
-  document.addEventListener('keydown', e => {
+  function updateSelection() {
+    items.forEach((el, idx) => el.classList.toggle('selected', idx === selectedIndex));
+    // ensure visible if overflow (not necessary in most NUI contexts)
+    const sel = items[selectedIndex];
+    if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+  }
+
+  function triggerAction(action) {
+    // If running in NUI, GetParentResourceName exists; but in plain browser it doesn't.
+    const resource = (typeof GetParentResourceName === 'function') ? GetParentResourceName() : null;
+    if (resource) {
+      fetch(`https://${resource}/menuAction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({ action })
+      });
+    } else {
+      // fallback: in browser show an alert for quick testing
+      alert('Action: ' + action);
+    }
+  }
+
+  function closeMenu() {
+    const resource = (typeof GetParentResourceName === 'function') ? GetParentResourceName() : null;
+    if (resource) {
+      fetch(`https://${resource}/close`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({})
+      });
+    } else {
+      // In browser, just hide
+      overlay.style.display = 'none';
+    }
+  }
+
+  function openWithHtml(html) {
+    // replace innerHTML with injected HTML
+    container.innerHTML = html;
+    // make sure it's visible
+    overlay.style.display = 'flex';
+    collectItems();
+  }
+
+  // key handling
+  function onKeyDown(e) {
+    if (!visible) return;
     if (e.key === 'ArrowDown') {
+      if (items.length === 0) return;
       selectedIndex = (selectedIndex + 1) % items.length;
       updateSelection();
+      e.preventDefault();
     } else if (e.key === 'ArrowUp') {
+      if (items.length === 0) return;
       selectedIndex = (selectedIndex - 1 + items.length) % items.length;
       updateSelection();
+      e.preventDefault();
     } else if (e.key === 'Enter') {
-      const current = items[selectedIndex];
-      alert(`Selected: ${current.textContent.trim()}`);
+      if (items.length === 0) return;
+      const el = items[selectedIndex];
+      const action = el.getAttribute('data-action') || el.textContent.trim();
+      triggerAction(action);
+      e.preventDefault();
     } else if (e.key === 'Backspace' || e.key === 'Escape') {
-      alert('Menu closed.');
+      closeMenu();
+      e.preventDefault();
+    }
+  }
+
+  // click handling for elements with data-action
+  container.addEventListener('click', (ev) => {
+    const el = ev.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action') || el.textContent.trim();
+    triggerAction(action);
+  });
+
+  // Listen for SendNUIMessage style messages from Lua
+  window.addEventListener('message', (ev) => {
+    const d = ev.data;
+    if (!d) return;
+    if (d.action === 'open' && d.html) {
+      openWithHtml(d.html);
+    } else if (d.action === 'close') {
+      closeMenu();
     }
   });
-</script>
 
+  // init
+  collectItems();
+  window.addEventListener('keydown', onKeyDown);
+
+})();
+</script>
 </body>
 </html>
