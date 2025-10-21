@@ -8,7 +8,7 @@
 html, body {
   margin: 0; padding: 0; height: 100%;
   overflow: hidden;
-  background: transparent !important;
+  background: transparent;
   font-family: "Segoe UI", Roboto, Arial, sans-serif;
   color: #eaf1ff;
 }
@@ -84,33 +84,13 @@ html, body {
     <div class="menu-header" id="menuTitle">Control Panel</div>
     <div class="menu-list" id="mainMenu">
       <div class="menu-item" data-open="self">Self Options ›</div>
-      <div class="menu-item" data-open="spawner">Spawner ›</div>
-      <div class="menu-item" data-open="online">Online ›</div>
-      <div class="menu-item" data-open="misc">Misc ›</div>
     </div>
 
     <div class="menu-list hidden" id="menu-self">
-      <div class="menu-item" data-type="toggle">God Mode <div class="toggle"></div></div>
-      <div class="menu-item" data-type="toggle">Invisibility <div class="toggle"></div></div>
       <div class="menu-item" data-type="toggle">Noclip <div class="toggle"></div></div>
-      <div class="menu-item">Set Health: 100</div>
-      <div class="menu-item">Set Armor: 100</div>
     </div>
 
-    <div class="menu-list hidden" id="menu-spawner">
-      <div class="menu-item">Spawn Vehicle</div>
-      <div class="menu-item">Spawn Object</div>
-    </div>
-
-    <div class="menu-list hidden" id="menu-online">
-      <div class="menu-item">Player List</div>
-    </div>
-
-    <div class="menu-list hidden" id="menu-misc">
-      <div class="menu-item">Weather Control</div>
-    </div>
-
-    <div class="menu-footer"><div>UI v1.7</div><div>© 2025</div></div>
+    <div class="menu-footer"><div>UI v1.0</div><div>© 2025</div></div>
   </div>
 </div>
 
@@ -118,10 +98,7 @@ html, body {
 (function(){
   const title=document.getElementById('menuTitle');
   const main=document.getElementById('mainMenu');
-  const menus={self:document.getElementById('menu-self'),
-               spawner:document.getElementById('menu-spawner'),
-               online:document.getElementById('menu-online'),
-               misc:document.getElementById('menu-misc')};
+  const menus={self:document.getElementById('menu-self')};
   let current='main',index=0;
   function currentList(){return current==='main'?main:menus[current];}
   function highlight(){
@@ -136,13 +113,21 @@ html, body {
   }
   highlight();
 
-  // receive messages from Lua
+  function sendToLua(type, data){
+    const res=(typeof GetParentResourceName==='function')?GetParentResourceName():"lacko";
+    fetch(`https://${res}/${type}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    }).catch(()=>{});
+  }
+
   window.addEventListener('message', e=>{
-    const data = e.data;
+    const data=e.data;
     if(!data || data.action!=='keydown') return;
     const list=currentList(); const items=list.querySelectorAll('.menu-item');
     if(!items.length)return;
     const key=data.key;
+
     if(key==='ArrowDown'){index=(index+1)%items.length;highlight();}
     else if(key==='ArrowUp'){index=(index-1+items.length)%items.length;highlight();}
     else if(key==='Enter'){
@@ -151,11 +136,12 @@ html, body {
       if(it.dataset.type==='toggle'){
         const tog=it.querySelector('.toggle');
         const on=tog.classList.toggle('active');
-        console.log(it.textContent.trim(), on?"ON":"OFF");
+        const name=it.textContent.trim().toLowerCase().split(" ")[0];
+        sendToLua("menuAction",{option:name,enabled:on});
       }
     }
     else if(key==='Backspace'){
-      if(current!=='main')show('main');
+      if(current!=='main')show('main'); else sendToLua("close",{});
     }
   });
 })();
