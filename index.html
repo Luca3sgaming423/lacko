@@ -113,12 +113,10 @@ html, body {
   }
   highlight();
 
-  function sendToLua(type, data){
-    const res=(typeof GetParentResourceName==='function')?GetParentResourceName():"lacko";
-    fetch(`https://${res}/${type}`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
-    }).catch(()=>{});
+  // Send to Lua (via Dui callback)
+  function sendToLua(ev, data){
+    if(window.SendDuiCallback)
+      window.SendDuiCallback(ev, JSON.stringify(data||{}));
   }
 
   window.addEventListener('message', e=>{
